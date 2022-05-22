@@ -3,11 +3,16 @@
 to_dna_regex="s/\+/ATCG/g;  s/\-/ATGC/g;  s/>/ACTG/g;  s/</ACGT/g;  s/\./AGTC/g;  s/,/AGCT/g;  s/\[/ATTG/g;  s/\]/ATTC/g"
 to_fuck_regex="s/ATCG/\+/g;  s/ATGC/\-/g;  s/ACTG/>/g;  s/ACGT/</g;  s/AGTC/\./g;  s/AGCT/,/g;  s/ATTG/\[/g;  s/ATTC/\]/g"
 
-[ -z $1 ] && cat /dev/stdin | sed "$to_fuck_regex" | xargs ./bf -c
+
+[ -z "$1" ] && sed "$to_fuck_regex" /dev/stdin | xargs ./bf -c
+
+if [ "$1" = --args ]; then
+   sed "$to_fuck_regex" /dev/stdin | xargs -I{} sh -c "echo \"$2\" | ./bf -c \"{}\"" && echo
+fi
+
 fname="$1"
-
-
 case $2 in
     --defuck) sed "$to_dna_regex" "$fname" ;;
     --refuck) sed "$to_fuck_regex" "$fname" ;;
+    --fuckize) sed "$to_fuck_regex;s/A\|C\|T\|G\|N//g" "$fname" | tr -d "\n" && echo ;;
 esac
